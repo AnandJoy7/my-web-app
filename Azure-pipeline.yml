@@ -44,12 +44,9 @@ stages:
 
 - stage: Deploy
   jobs:
-  - deployment: DeployToAzure
+  - job: DeployToAzure
     environment: 'Production'
-    strategy:
-      runOnce:
-        deploy:
-          steps:
+      steps:
           - task: AzureWebAppContainer@1
             inputs:
               azureSubscription: 'Codincity-Primary'  # Replace with your Azure subscription name

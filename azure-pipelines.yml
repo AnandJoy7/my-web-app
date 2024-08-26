@@ -1,0 +1,57 @@
+trigger:
+  branches:
+    include:
+      - dev
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+- stage: Build
+  jobs:
+  - job: BuildAndPush
+    steps:
+    - task: Docker@2
+      inputs:
+        command: buildAndPush
+        repository: 'anandjoy7/my-web-app'
+        dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+        tags: |
+          $(Build.SourceBranchName)
+        containerRegistry: 'DockerHub7'  # Replace this with your service connection name
+
+- stage: Test
+  jobs:
+  - job: RunTests
+    steps:
+    - script: |
+        npm install
+        npm test
+      displayName: 'Run Unit Tests'
+
+- stage: Push
+  dependsOn: Test
+  jobs:
+  - job: PushToDockerHub
+    steps:
+    - task: Docker@2
+      inputs:
+        command: push
+        repository: 'anandjoy7/my-web-app'
+        tags: |
+          $(Build.SourceBranchName)
+        containerRegistry: 'DockerHub7'  # Replace this with your service connection name
+
+- stage: Deploy
+  jobs:
+  - deployment: DeployToAzure
+    environment: 'Production'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureWebAppContainer@1
+            inputs:
+              azureSubscription: 'Codincity-Primary'  # Replace with your Azure subscription name
+              appName: 'my-web-app'  # Replace with your Azure Web App name
+              imageName: 'anandjoy7/my-web-app:$(Build.SourceBranchName)'

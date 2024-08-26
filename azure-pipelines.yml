@@ -14,11 +14,11 @@ stages:
     - task: Docker@2
       inputs:
         command: buildAndPush
-        repository: 'anandjoy7/my-web-app'
+        repository: 'mydockerhubuser/my-web-app'
         dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+        containerRegistry: 'DockerHub7'
         tags: |
           $(Build.SourceBranchName)
-        containerRegistry: 'DockerHub7'  # Replace this with your service connection name
 
 - stage: Test
   jobs:
@@ -38,20 +38,16 @@ stages:
       inputs:
         command: push
         repository: 'anandjoy7/my-web-app'
+        containerRegistry: 'DockerHub7'
         tags: |
           $(Build.SourceBranchName)
-        containerRegistry: 'DockerHub7'  # Replace this with your service connection name
 
 - stage: Deploy
   jobs:
-  - deployment: DeployToAzure
-    environment: 'Production'
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: AzureWebAppContainer@1
-            inputs:
-              azureSubscription: 'Codincity-Primary'  # Replace with your Azure subscription name
-              appName: 'my-web-app'  # Replace with your Azure Web App name
-              imageName: 'anandjoy7/my-web-app:$(Build.SourceBranchName)'
+  - job: DeployToAzure
+    steps:
+    - task: AzureWebAppContainer@1
+      inputs:
+        azureSubscription: 'AppConnection7'
+        appName: 'my-web-app'
+        imageName: 'anandjoy7/my-web-app:$(Build.SourceBranchName)'

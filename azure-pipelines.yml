@@ -18,7 +18,7 @@ stages:
         dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
         tags: |
           $(Build.SourceBranchName)
-        containerRegistry: 'DockerHub7'  # Replace this with your service connection name
+        containerRegistry: 'DockerHub'  # Replace this with your service connection name
 
 - stage: Test
   jobs:
@@ -40,7 +40,7 @@ stages:
         repository: 'anandjoy7/my-web-app'
         tags: |
           $(Build.SourceBranchName)
-        containerRegistry: 'DockerHub7'  # Replace this with your service connection name
+        containerRegistry: 'DockerHub'  # Replace this with your service connection name
 
 - stage: Deploy
   jobs:

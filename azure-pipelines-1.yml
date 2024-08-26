@@ -25,3 +25,12 @@ steps:
     command: 'buildAndPush'
     Dockerfile: '**/Dockerfile'
 
+- script: |
+    # Create a directory to copy build files
+    mkdir -p $(Build.ArtifactStagingDirectory)
+    # Copy build files to the directory
+    cp -r $(Build.SourcesDirectory)/* $(Build.ArtifactStagingDirectory)/
+  displayName: 'Copy build files'
+
+- publish: $(Build.ArtifactStagingDirectory)
+  artifact: buildArtifacts

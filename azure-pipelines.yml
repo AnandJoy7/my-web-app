@@ -1,54 +1,36 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
 trigger:
-  branches:
-    include:
-      - dev
-      - main
+- main
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: ubuntu-latest
 
-stages:
-- stage: Build
-  jobs:
-  - job: BuildAndPush
-    steps:
-    - task: Docker@2
-      inputs:
-        command: buildAndPush
-        repository: 'anandjoy7/my-web-app'
-        dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
-        tags: |
-          $(Build.SourceBranchName)
-        containerRegistry: 'DockerHub'  # Replace this with your service connection name
+steps:
+- script: echo Hello, world!
+  displayName: 'Run a one-line script'
 
-- stage: Test
-  jobs:
-  - job: RunTests
-    steps:
-    - script: |
-        npm install
-        npm test
-      displayName: 'Run Unit Tests'
+- script: |
+    echo Add other tasks to build, test, and deploy your project.
+    echo See https://aka.ms/yaml
+  displayName: 'Run a multi-line script'
 
-- stage: Push
-  dependsOn: Test
-  jobs:
-  - job: PushToDockerHub
-    steps:
-    - task: Docker@2
-      inputs:
-        command: push
-        repository: 'anandjoy7/my-web-app'
-        tags: |
-          $(Build.SourceBranchName)
-        containerRegistry: 'DockerHub'  # Replace this with your service connection name
+- task: Docker@2
+  inputs:
+    containerRegistry: 'DockerHub7'
+    repository: 'test'
+    command: 'buildAndPush'
+    Dockerfile: '**/Dockerfile'
 
-- stage: Deploy
-  jobs:
-  - job: DeployToAzure
-    steps:
-          - task: AzureWebAppContainer@1
-            inputs:
-              azureSubscription: 'AppConnection7'  # Replace with your Azure subscription name
-              appName: 'my-web-app'  # Replace with your Azure Web App name
-              imageName: 'anandjoy7/my-web-app:$(Build.SourceBranchName)'
+- script: |
+    # Create a directory to copy build files
+    mkdir -p $(Build.ArtifactStagingDirectory)
+    # Copy build files to the directory
+    cp -r $(Build.SourcesDirectory)/* $(Build.ArtifactStagingDirectory)/
+  displayName: 'Copy build files'
+
+- publish: $(Build.ArtifactStagingDirectory)
+  artifact: buildArtifacts
